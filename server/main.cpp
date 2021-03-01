@@ -24,7 +24,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <chrono>
 #include <cinttypes>
 #include <mutex>
 
@@ -32,7 +31,6 @@
 
 #include "log/log.h"
 
-#include <android-base/properties.h>
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
 #include <netdutils/Stopwatch.h>
@@ -122,13 +120,6 @@ int main() {
         setCloseOnExec(sock);
         gLog.info("setCloseOnExec(%s)", sock);
     }
-
-    // Make sure BPF programs are loaded before doing anything
-    while (!android::base::WaitForProperty("bpf.progs_loaded", "1",
-           std::chrono::seconds(5))) {
-        ALOGD("netd waited 5s for bpf.progs_loaded, still waiting...");
-    }
-    gLog.info("BPF programs are loaded");
 
     NetlinkManager *nm = NetlinkManager::Instance();
     if (nm == nullptr) {
